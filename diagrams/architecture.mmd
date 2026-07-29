@@ -1,18 +1,21 @@
 flowchart TD
-    A[User Question] --> B[Query Preprocessor]
+    A[User Question] --> B[Query Processor]
     B --> C[Retriever]
     C --> D[Relevant Snippets]
-    D --> E[Answer Generator]
-    E --> F[Validation & Guardrails]
+    D --> E[RAG Answer Generator]
+    E --> F[Guardrails and Safety Check]
     F --> G[Final Answer]
 
-    subgraph Knowledge Base
-        H[Project Docs]
-        I[External Documentation]
+    subgraph Knowledge Sources
+        H[Project Documentation]
+        I[Optional External Docs]
     end
 
     H --> C
     I --> C
 
-    F --> J[Confidence Score]
-    F --> K[Error Log]
+    F --> J[Confidence / Reliability Check]
+    J --> K[Testing & Evaluation]
+    K --> L[Human Review]
+    L --> M[Improved Prompt or Retrieval]
+    M --> C
