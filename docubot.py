@@ -9,6 +9,7 @@ Core DocuBot class responsible for:
 
 import os
 import glob
+import re
 
 class DocuBot:
     def __init__(self, docs_folder="docs", llm_client=None):
@@ -22,8 +23,12 @@ class DocuBot:
         # Load documents into memory
         self.documents = self.load_documents()  # List of (filename, text)
 
+        # Split each document into smaller sections so retrieval can return
+        # a focused snippet instead of a whole file.
+        self.chunks = self.build_chunks()  # List of (filename, section_text)
+
         # Build a retrieval index (implemented in Phase 1)
-        self.index = self.build_index(self.documents)
+        self.index = self.build_index(self.chunks)
 
     # -----------------------------------------------------------
     # Document Loading
@@ -45,6 +50,46 @@ class DocuBot:
         return docs
 
     # -----------------------------------------------------------
+    # Chunking: split documents into smaller sections
+    # -----------------------------------------------------------
+
+    def build_chunks(self):
+        """
+        Turn each (filename, full_text) document into several
+        (filename, section_text) chunks so retrieval can pinpoint the
+        relevant part of a file instead of returning the whole thing.
+        """
+        chunks = []
+        for filename, text in self.documents:
+            for section in self.chunk_document(text):
+                chunks.append((filename, section))
+        return chunks
+
+    def chunk_document(self, text):
+        """
+        Split a Markdown document into sections at heading lines (lines
+        starting with '#'). Each section keeps its heading together with
+        the text that follows it, up to the next heading.
+
+        Simple and consistent: no external libraries, just line scanning.
+        """
+        sections = []
+        current = []
+        for line in text.splitlines():
+            # A heading starts a new section, but only once we've already
+            # collected some lines (so the title isn't split off alone).
+            if line.startswith("#") and current:
+                sections.append("\n".join(current).strip())
+                current = [line]
+            else:
+                current.append(line)
+        if current:
+            sections.append("\n".join(current).strip())
+
+        # Drop any empty sections produced by blank runs.
+        return [s for s in sections if s]
+
+    # -----------------------------------------------------------
     # Index Construction (Phase 1)
     # -----------------------------------------------------------
 
@@ -64,8 +109,35 @@ class DocuBot:
         ignore punctuation if needed.
         """
         index = {}
-        # TODO: implement simple indexing
+        for filename, text in documents:
+            for word in self.tokenize(text):
+                docs_for_word = index.setdefault(word, [])
+                if filename not in docs_for_word:
+                    docs_for_word.append(filename)
         return index
+
+    # Guardrail: a chunk must score at least this high to count as useful
+    # context. Below it, matches are just incidental word overlap and the
+    # bot should refuse rather than answer from noise.
+    MIN_SCORE = 2
+
+    # Common filler words that match everywhere and add noise to scoring.
+    STOPWORDS = {
+        "the", "is", "a", "an", "of", "to", "in", "on", "for", "and", "or",
+        "how", "do", "i", "where", "which", "what", "are", "does", "all",
+        "this", "that", "from", "with", "by", "be", "it",
+    }
+
+    def tokenize(self, text):
+        """
+        Split text into lowercase word tokens, dropping punctuation and
+        common stopwords.
+        "Which users?" -> ["users"]
+        """
+        words = re.findall(r"[a-z0-9]+", text.lower())
+        kept = [w for w in words if w not in self.STOPWORDS]
+        # Crude stemming: drop a trailing "s" so "endpoints" matches "endpoint".
+        return [w[:-1] if w.endswith("s") and len(w) > 3 else w for w in kept]
 
     # -----------------------------------------------------------
     # Scoring and Retrieval (Phase 1)
@@ -81,8 +153,11 @@ class DocuBot:
         - Count how many appear in the text
         - Return the count as the score
         """
-        # TODO: implement scoring
-        return 0
+        query_words = set(self.tokenize(query))
+        text_tokens = self.tokenize(text)
+        # Count total occurrences: a doc that mentions a query word many
+        # times is more relevant than one that mentions it once.
+        return sum(text_tokens.count(word) for word in query_words)
 
     def retrieve(self, query, top_k=3):
         """
@@ -91,8 +166,18 @@ class DocuBot:
 
         Return a list of (filename, text) sorted by score descending.
         """
-        results = []
-        # TODO: implement retrieval logic
+        scored = []
+        for filename, chunk in self.chunks:
+            score = self.score_document(query, chunk)
+            # Guardrail: ignore weak matches. A chunk must clear MIN_SCORE
+            # to count as "useful context." If nothing clears it, we return
+            # an empty list and the caller refuses to answer.
+            if score >= self.MIN_SCORE:
+                scored.append((score, filename, chunk))
+
+        scored.sort(key=lambda item: item[0], reverse=True)
+
+        results = [(filename, chunk) for _, filename, chunk in scored]
         return results[:top_k]
 
     # -----------------------------------------------------------
