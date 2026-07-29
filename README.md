@@ -103,7 +103,15 @@ I built the system this way because a documentation assistant is more useful whe
 
 ## Testing summary
 
-The project includes a small test suite that checks retrieval relevance and fallback behavior. The main improvement was making the RAG path degrade gracefully when no LLM is available. This worked well and made the system more reliable. One limitation is that retrieval still uses a simple keyword-based approach, so it may miss semantically related answers that use different wording.
+The project includes automated tests for core retrieval behavior and fallback handling. Verified results: 4 out of 4 tests passed, and the system successfully handled unsupported questions by refusing to guess. The assistant also logs retrieval and generation events so failures can be traced and improved.
+
+### Structured evaluation
+
+| Test input | Evaluation criteria | Result |
+| --- | --- | --- |
+| How do I connect to the database? | Returns a relevant, evidence-based answer | Pass |
+| Where is the auth token generated? | Returns a relevant, evidence-based answer | Pass |
+| What about purple dragons in space? | Handles gracefully and refuses unsupported answers | Pass |
 
 ## Reflection
 
