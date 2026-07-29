@@ -1,23 +1,23 @@
 # Applied AI Documentation Assistant
 
 ## Slide 1 — Project Overview
-- Evolved the original DocuBot into a more reliable applied AI system
-- Helps developers answer questions from project documentation
-- Focuses on grounded answers, guardrails, and evaluation
+- Introduce the problem: developers often struggle to find answers quickly in scattered documentation
+- Present the solution: a documentation assistant that retrieves evidence and answers questions safely
+- Emphasize the goal: turn a prototype into a more trustworthy applied AI system
 
 ## Slide 2 — How the System Works
-- User asks a question
-- Retriever finds relevant documentation snippets
-- RAG answer generator uses the retrieved evidence
-- Guardrails refuse unsupported answers and keep responses safe
+- A user asks a question
+- The retriever finds relevant documentation snippets
+- The RAG layer uses those snippets to generate a grounded response
+- Guardrails prevent unsupported claims and provide a safe fallback when evidence is weak
 
 ## Slide 3 — Demo and Evidence
-- Run: `python main.py`
-- Run: `pytest -q`
-- Run: `python evaluation.py`
-- Results: 4/4 tests passed and 7/8 retrieval checks hit the expected source
+- Show the main command: `python main.py`
+- Show the reliability checks: `pytest -q`
+- Show the evaluation harness: `python evaluation.py`
+- Mention the verified results: 4/4 tests passed and 7/8 retrieval checks hit the expected source
 
-## Slide 4 — What I Learned
-- AI systems are most useful when they are grounded and tested
-- Guardrails and evaluation are essential for trustworthiness
-- This project showed me how to build a practical AI workflow for real-world documentation tasks
+## Slide 4 — What I Learned and Why It Matters
+- AI is most valuable when it is grounded, tested, and transparent
+- Guardrails and evaluation are essential to build trust in real-world systems
+- This project taught me how to move from a simple prototype to a more practical and responsible AI workflow
