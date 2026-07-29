@@ -1,82 +1,70 @@
-# DocuBot
+# Applied AI Documentation Assistant
 
-DocuBot is a small documentation assistant that helps answer developer questions about a codebase.  
-It can operate in three different modes:
+This project evolves a simple documentation chatbot into a more useful applied AI system. It helps developers answer questions about project documentation by combining retrieval, grounded reasoning, and guardrails.
 
-1. **Naive LLM mode**  
-   Sends the entire documentation corpus to a Gemini model and asks it to answer the question.
+## What the system does
 
-2. **Retrieval only mode**  
-   Uses a simple indexing and scoring system to retrieve relevant snippets without calling an LLM.
+The assistant can:
+- retrieve relevant documentation snippets from the project docs
+- answer questions using a retrieval-augmented generation (RAG) workflow
+- fall back safely when no language model is available
+- log important events and avoid guessing when evidence is weak
 
-3. **RAG mode (Retrieval Augmented Generation)**  
-   Retrieves relevant snippets, then asks Gemini to answer using only those snippets.
+## AI features included
 
-The docs folder contains realistic developer documents (API reference, authentication notes, database notes), but these files are **just text**. They support retrieval experiments and do not require students to set up any backend systems.
+- Retrieval-Augmented Generation (RAG): the assistant retrieves evidence before answering
+- Reliability and guardrails: it refuses to answer when it has insufficient evidence
+- Logging: the system records retrieval and generation events for transparency
 
----
+## Project structure
+
+- `docubot.py` — retrieval, chunking, scoring, and grounded response logic
+- `llm_client.py` — Gemini integration and safe prompt handling
+- `main.py` — command-line interface for running the assistant
+- `tests/` — regression tests for retrieval and fallback behavior
+- `diagrams/architecture.mmd` — Mermaid architecture diagram
+- `assets/` — supporting images and visuals
 
 ## Setup
 
-### 1. Install Python dependencies
+### 1. Install dependencies
 
-    pip install -r requirements.txt
+```bash
+pip install -r requirements.txt
+```
 
 ### 2. Configure environment variables
 
-Copy the example file:
+Create a `.env` file with your Gemini API key:
 
-    cp .env.example .env
+```bash
+GEMINI_API_KEY=your_api_key_here
+```
 
-Then edit `.env` to include your Gemini API key:
+If no Gemini key is provided, the assistant can still run in retrieval-only or grounded fallback mode.
 
-    GEMINI_API_KEY=your_api_key_here
+## Run the application
 
-If you do not set a Gemini key, you can still run retrieval only mode.
+```bash
+python main.py
+```
 
----
+Choose one of the following modes:
+- 1: Naive LLM over the full docs
+- 2: Retrieval-only mode
+- 3: RAG mode with grounded retrieval
 
-## Running DocuBot
+## Run tests
 
-Start the program:
+```bash
+pytest -q
+```
 
-    python main.py
+## Responsible design notes
 
-Choose a mode:
-
-- **1**: Naive LLM (Gemini reads the full docs)  
-- **2**: Retrieval only (no LLM)  
-- **3**: RAG (retrieval + Gemini)
-
-You can use built in sample queries or type your own.
-
----
-
-## Running Retrieval Evaluation (optional)
-
-    python evaluation.py
-
-This prints simple retrieval hit rates for sample queries.
-
----
-
-## Modifying the Project
-
-You will primarily work in:
-
-- `docubot.py`  
-  Implement or improve the retrieval index, scoring, and snippet selection.
-
-- `llm_client.py`  
-  Adjust the prompts and behavior of LLM responses.
-
-- `dataset.py`  
-  Add or change sample queries for testing.
-
----
+The assistant is designed to be cautious. It uses retrieved snippets as evidence, refuses to invent answers, and provides a safe fallback when no LLM is available.
 
 ## Requirements
 
 - Python 3.9+
-- A Gemini API key for LLM features (only needed for modes 1 and 3)
-- No database, no server setup, no external services besides LLM calls
+- Gemini API key for LLM-backed modes (optional for fallback mode)

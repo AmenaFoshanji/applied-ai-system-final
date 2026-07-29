@@ -13,7 +13,10 @@ Experiment with:
 """
 
 import os
+import logging
 from google import genai
+
+logger = logging.getLogger("docubot.llm")
 
 # Central place to update the model name if needed.
 # You can swap this for a different Gemini model in the future.
@@ -58,6 +61,7 @@ class GeminiClient:
             )
             return (response.text or "").strip()
         except Exception as e:
+            logger.exception("Naive generation failed")
             return f"Unable to generate an answer. ({type(e).__name__}: {e})"
 
     # -----------------------------------------------------------
@@ -119,4 +123,5 @@ Rules:
             )
             return (response.text or "").strip()
         except Exception as e:
+            logger.exception("RAG generation failed")
             return f"API error — could not generate answer. ({type(e).__name__}: {e})"

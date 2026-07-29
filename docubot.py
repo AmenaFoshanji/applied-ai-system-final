@@ -10,6 +10,11 @@ Core DocuBot class responsible for:
 import os
 import glob
 import re
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
+logger = logging.getLogger("docubot")
+
 
 class DocuBot:
     def __init__(self, docs_folder="docs", llm_client=None):
@@ -202,21 +207,33 @@ class DocuBot:
 
     def answer_rag(self, query, top_k=3):
         """
-        Phase 2 RAG mode.
-        Uses student retrieval to select snippets, then asks Gemini
-        to generate an answer using only those snippets.
+        Retrieval-augmented generation mode.
+        Uses retrieved snippets as grounded evidence and falls back to a
+        retrieval-only explanation when no LLM is available.
         """
-        if self.llm_client is None:
-            raise RuntimeError(
-                "RAG mode requires an LLM client. Provide a GeminiClient instance."
-            )
-
         snippets = self.retrieve(query, top_k=top_k)
+        logger.info("RAG query='%s' snippets=%d", query, len(snippets))
 
         if not snippets:
+            logger.warning("No snippets found for query '%s'", query)
             return "I do not know based on these docs."
 
+        if self.llm_client is None:
+            logger.warning("LLM unavailable; returning grounded retrieval summary")
+            return self._build_grounded_summary(query, snippets)
+
         return self.llm_client.answer_from_snippets(query, snippets)
+
+    def _build_grounded_summary(self, query, snippets):
+        """Create a safe, evidence-based summary without an LLM."""
+        intro = (
+            f"I could not use a language model for this request, "
+            f"but I found grounded documentation for '{query}'."
+        )
+        sections = [intro]
+        for filename, text in snippets:
+            sections.append(f"[{filename}]\n{text}")
+        return "\n\n".join(sections)
 
     # -----------------------------------------------------------
     # Bonus Helper: concatenated docs for naive generation mode
