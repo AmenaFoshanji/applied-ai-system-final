@@ -119,6 +119,16 @@ A lightweight evaluation harness is available in [evaluation.py](evaluation.py).
 
 This project taught me that the most useful AI systems are not just clever — they are dependable. Designing for grounding, testing, and safe failure modes is often more important than maximizing raw output quality. I also learned that good AI engineering requires balancing usefulness with caution, especially when users may assume the system is always correct.
 
+## Portfolio artifact
+
+GitHub repository: https://github.com/AmenaFoshanji/applied-ai-system-final
+
+What this project says about me as an AI engineer: I build AI systems that solve real problems with a strong emphasis on evidence, reliability, and responsible behavior. I prefer designs that are grounded, testable, and transparent rather than flashy but fragile.
+
+## Presentation notes
+
+A short four-slide presentation is available in [presentation/slides.md](presentation/slides.md). It summarizes the system, the demo flow, the evaluation evidence, and the main lessons learned.
+
 ## Requirements
 
 - Python 3.9+
