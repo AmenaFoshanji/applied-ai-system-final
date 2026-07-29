@@ -125,10 +125,6 @@ GitHub repository: https://github.com/AmenaFoshanji/applied-ai-system-final
 
 What this project says about me as an AI engineer: I build AI systems that solve real problems with a strong emphasis on evidence, reliability, and responsible behavior. I prefer designs that are grounded, testable, and transparent rather than flashy but fragile.
 
-## Presentation notes
-
-A short four-slide presentation is available in [presentation/slides.md](presentation/slides.md). It summarizes the system, the demo flow, the evaluation evidence, and the main lessons learned.
-
 ## Requirements
 
 - Python 3.9+
