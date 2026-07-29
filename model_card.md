@@ -1,147 +1,34 @@
-# DocuBot Model Card
-
-This model card is a short reflection on your DocuBot system. Fill it out after you have implemented retrieval and experimented with all three modes:
-
-1. Naive LLM over full docs  
-2. Retrieval only  
-3. RAG (retrieval plus LLM)
-
-Use clear, honest descriptions. It is fine if your system is imperfect.
-
----
+# Applied AI Documentation Assistant Model Card
 
 ## 1. System Overview
 
-**What is DocuBot trying to do?**  
-Describe the overall goal in 2 to 3 sentences.
+This system is a documentation assistant that helps users answer questions about a codebase using retrieved evidence rather than relying only on a general language model. It is designed to be helpful for onboarding, debugging, and understanding project documentation while staying cautious about uncertainty.
 
-> _Your answer here._
+## 2. Limitations and Biases
 
-**What inputs does DocuBot take?**  
-For example: user question, docs in folder, environment variables.
+The system has several important limitations:
 
-> _Your answer here._
+- Its retrieval is keyword-based, so it can miss relevant answers when the wording is different from the source text.
+- It can be biased toward the most obvious or frequently repeated documentation snippets, which may overshadow less prominent but still important details.
+- It may give an incomplete answer if the documentation is thin or ambiguous.
+- The system is not a substitute for human judgment in sensitive or high-stakes technical decisions.
 
-**What outputs does DocuBot produce?**
+## 3. Potential Misuse and Prevention
 
-> _Your answer here._
+This AI could be misused if someone treated it as a guaranteed authority instead of a support tool. A developer might trust it to make a risky decision without checking the original documentation. To reduce that risk, the system is designed to refuse unsupported answers, provide evidence-based summaries, and fall back safely when it lacks sufficient context. It should be used as a guide, not as the final authority.
 
----
+## 4. What Surprised Me During Testing
 
-## 2. Retrieval Design
+The most surprising result was that the assistant behaved much more reliably when it used retrieved evidence rather than free-form generation alone. I also noticed that the system handled unsupported questions better than expected once guardrails were added, which showed that careful design can improve trustworthiness even when the underlying model is not perfect.
 
-**How does your retrieval system work?**  
-Describe your choices for indexing and scoring.
+## 5. Collaboration With AI During This Project
 
-- How do you turn documents into an index?
-- How do you score relevance for a query?
-- How do you choose top snippets?
+I used AI as a coding and planning partner throughout the project. One helpful suggestion was when the AI proposed a safer fallback strategy for when no Gemini API key was available; that helped me turn a brittle failure path into a more robust experience. One flawed suggestion was a proposed response pattern that appeared more polished but could have encouraged the assistant to answer confidently without enough evidence. I corrected that by making the system rely on retrieval and explicit refusal behavior instead.
 
-> _Your answer here._
+## 6. Reliability and Testing Notes
 
-**What tradeoffs did you make?**  
-For example: speed vs precision, simplicity vs accuracy.
+The system was tested with automated unit tests covering retrieval and fallback behavior. The current results were strong: 4 out of 4 tests passed. The system also logs retrieval and generation events, which improves transparency when something goes wrong.
 
-> _Your answer here._
+## 7. Responsible Use Guidance
 
----
-
-## 3. Use of the LLM (Gemini)
-
-**When does DocuBot call the LLM and when does it not?**  
-Briefly describe how each mode behaves.
-
-- Naive LLM mode:
-- Retrieval only mode:
-- RAG mode:
-
-> _Your answer here._
-
-**What instructions do you give the LLM to keep it grounded?**  
-Summarize the rules from your prompt. For example: only use snippets, say "I do not know" when needed, cite files.
-
-> _Your answer here._
-
----
-
-## 4. Experiments and Comparisons
-
-Run the **same set of queries** in all three modes. Fill in the table with short notes.
-
-You can reuse or adapt the queries from `dataset.py`.
-
-| Query | Naive LLM: helpful or harmful? | Retrieval only: helpful or harmful? | RAG: helpful or harmful? | Notes |
-|------|---------------------------------|--------------------------------------|---------------------------|-------|
-| Example: Where is the auth token generated? | | | | |
-| Example: How do I connect to the database? | | | | |
-| Example: Which endpoint lists all users? | | | | |
-| Example: How does a client refresh an access token? | | | | |
-
-**What patterns did you notice?**  
-
-- When does naive LLM look impressive but untrustworthy?  
-- When is retrieval only clearly better?  
-- When is RAG clearly better than both?
-
-> _Your answer here._
-
----
-
-## 5. Failure Cases and Guardrails
-
-**Describe at least two concrete failure cases you observed.**  
-For each one, say:
-
-- What was the question?  
-- What did the system do?  
-- What should have happened instead?
-
-> _Failure case 1 here._
-
-> _Failure case 2 here._
-
-**When should DocuBot say “I do not know based on the docs I have”?**  
-Give at least two specific situations.
-
-> _Your answer here._
-
-**What guardrails did you implement?**  
-Examples: refusal rules, thresholds, limits on snippets, safe defaults.
-
-> _Your answer here._
-
----
-
-## 6. Limitations and Future Improvements
-
-**Current limitations**  
-List at least three limitations of your DocuBot system.
-
-1. _Limitation 1_
-2. _Limitation 2_
-3. _Limitation 3_
-
-**Future improvements**  
-List two or three changes that would most improve reliability or usefulness.
-
-1. _Improvement 1_
-2. _Improvement 2_
-3. _Improvement 3_
-
----
-
-## 7. Responsible Use
-
-**Where could this system cause real world harm if used carelessly?**  
-Think about wrong answers, missing information, or over trusting the LLM.
-
-> _Your answer here._
-
-**What instructions would you give real developers who want to use DocuBot safely?**  
-Write 2 to 4 short bullet points.
-
-- _Guideline 1_
-- _Guideline 2_
-- _Guideline 3 (optional)_
-
----
+When using this system, developers should verify any critical technical decision against the original documentation or source code. The assistant should be treated as a support tool for exploration and summarization, not as a complete authority.
