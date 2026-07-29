@@ -1,0 +1,18 @@
+flowchart TD
+    A[User Question] --> B[Query Preprocessor]
+    B --> C[Retriever]
+    C --> D[Relevant Snippets]
+    D --> E[Answer Generator]
+    E --> F[Validation & Guardrails]
+    F --> G[Final Answer]
+
+    subgraph Knowledge Base
+        H[Project Docs]
+        I[External Documentation]
+    end
+
+    H --> C
+    I --> C
+
+    F --> J[Confidence Score]
+    F --> K[Error Log]
