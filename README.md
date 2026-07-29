@@ -1,31 +1,30 @@
 # Applied AI Documentation Assistant
 
-This project evolves a simple documentation chatbot into a more useful applied AI system. It helps developers answer questions about project documentation by combining retrieval, grounded reasoning, and guardrails.
+## Original Project Context
 
-## What the system does
+This project is an evolution of the Module 4 DocuBot starter project. Its original goal was to help developers ask questions about project documentation by searching a small set of markdown files. The original system was a lightweight prototype for retrieval and answer generation, and this version extends that idea into a more complete applied AI system with stronger grounding, safer behavior, and clearer evaluation.
 
-The assistant can:
-- retrieve relevant documentation snippets from the project docs
-- answer questions using a retrieval-augmented generation (RAG) workflow
-- fall back safely when no language model is available
-- log important events and avoid guessing when evidence is weak
+## What the project does
 
-## AI features included
+This project turns documentation into a practical AI assistant that can answer developer questions using evidence from the project docs. It is designed to help someone quickly find answers about authentication, database setup, API routes, and other important project details without relying on guesswork.
 
-- Retrieval-Augmented Generation (RAG): the assistant retrieves evidence before answering
-- Reliability and guardrails: it refuses to answer when it has insufficient evidence
-- Logging: the system records retrieval and generation events for transparency
+## Why it matters
 
-## Project structure
+In real-world teams, documentation is often scattered and incomplete. This system makes documentation more accessible by combining retrieval, AI-generated answers, and guardrails so the assistant can provide useful help while still being careful about uncertainty.
 
-- `docubot.py` — retrieval, chunking, scoring, and grounded response logic
-- `llm_client.py` — Gemini integration and safe prompt handling
-- `main.py` — command-line interface for running the assistant
-- `tests/` — regression tests for retrieval and fallback behavior
-- `diagrams/architecture.mmd` — Mermaid architecture diagram
-- `assets/` — supporting images and visuals
+## Architecture overview
 
-## Setup
+The system follows a simple retrieval-augmented generation pipeline:
+
+1. A user asks a question.
+2. The retriever searches the documentation corpus for relevant snippets.
+3. The answer generator uses those snippets as evidence.
+4. Guardrails check the result for reliability and avoid unsupported claims.
+5. If no LLM is available, the system falls back to a grounded retrieval summary instead of hallucinating.
+
+The Mermaid diagram for this architecture is stored in [diagrams/architecture.mmd](diagrams/architecture.mmd).
+
+## Setup instructions
 
 ### 1. Install dependencies
 
@@ -41,9 +40,9 @@ Create a `.env` file with your Gemini API key:
 GEMINI_API_KEY=your_api_key_here
 ```
 
-If no Gemini key is provided, the assistant can still run in retrieval-only or grounded fallback mode.
+If you do not provide a Gemini key, the assistant can still run in retrieval-only or grounded fallback mode.
 
-## Run the application
+### 3. Run the application
 
 ```bash
 python main.py
@@ -54,15 +53,61 @@ Choose one of the following modes:
 - 2: Retrieval-only mode
 - 3: RAG mode with grounded retrieval
 
-## Run tests
+### 4. Run tests
 
 ```bash
 pytest -q
 ```
 
-## Responsible design notes
+## Sample interactions
 
-The assistant is designed to be cautious. It uses retrieved snippets as evidence, refuses to invent answers, and provides a safe fallback when no LLM is available.
+### Example 1
+
+Input:
+```text
+How do I connect to the database?
+```
+
+Output:
+```text
+The assistant retrieves the database documentation and returns a grounded answer that references the relevant snippet.
+```
+
+### Example 2
+
+Input:
+```text
+Where is the auth token generated?
+```
+
+Output:
+```text
+The assistant searches the authentication docs and returns the relevant evidence-based explanation.
+```
+
+### Example 3
+
+Input:
+```text
+What about purple dragons in space?
+```
+
+Output:
+```text
+The assistant refuses to answer with unsupported information and returns a safe fallback message.
+```
+
+## Design decisions
+
+I built the system this way because a documentation assistant is more useful when it is grounded in evidence rather than simply generating text from memory. The retrieval layer helps focus the response, while the guardrails make the assistant more trustworthy. A trade-off of this design is that it is intentionally conservative; sometimes it refuses to answer when the evidence is weak, but that is preferable to giving a confident but incorrect answer.
+
+## Testing summary
+
+The project includes a small test suite that checks retrieval relevance and fallback behavior. The main improvement was making the RAG path degrade gracefully when no LLM is available. This worked well and made the system more reliable. One limitation is that retrieval still uses a simple keyword-based approach, so it may miss semantically related answers that use different wording.
+
+## Reflection
+
+This project taught me that the most useful AI systems are not just clever — they are dependable. Designing for grounding, testing, and safe failure modes is often more important than maximizing raw output quality. I also learned that good AI engineering requires balancing usefulness with caution, especially when users may assume the system is always correct.
 
 ## Requirements
 
