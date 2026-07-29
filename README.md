@@ -105,7 +105,7 @@ I built the system this way because a documentation assistant is more useful whe
 
 The project includes automated tests for core retrieval behavior and fallback handling. Verified results: 4 out of 4 tests passed, and the system successfully handled unsupported questions by refusing to guess. The assistant also logs retrieval and generation events so failures can be traced and improved.
 
-A lightweight evaluation harness is available in [evaluation.py](evaluation.py). Running it prints a pass/fail summary for the sample questions, making the system's reliability easier to measure and compare over time.
+A lightweight evaluation harness is available in [evaluation.py](evaluation.py). Running it prints a pass/fail summary for the sample questions, making the system's reliability easier to measure and compare over time. Reproducible command output is also saved in [docs/verification.md](docs/verification.md).
 
 ### Structured evaluation
 
