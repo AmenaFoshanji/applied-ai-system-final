@@ -13,6 +13,20 @@ the correct files for each query and reports a hit rate.
 from dataset import SAMPLE_QUERIES
 
 
+def run_reliability_check(bot, top_k=3):
+    """Run a small evaluation harness and return a summary dictionary."""
+    hit_rate, results = evaluate_retrieval(bot, top_k=top_k)
+    passed = sum(1 for item in results if item["hit"])
+    summary = {
+        "total_queries": len(results),
+        "passed": passed,
+        "failed": len(results) - passed,
+        "hit_rate": round(hit_rate, 2),
+        "results": results,
+    }
+    return summary
+
+
 # -----------------------------------------------------------
 # Expected document signals for evaluation
 # -----------------------------------------------------------
@@ -114,5 +128,13 @@ if __name__ == "__main__":
     print("Running retrieval evaluation...\n")
     bot = DocuBot()
 
-    hit_rate, results = evaluate_retrieval(bot)
-    print_eval_results(hit_rate, results)
+    summary = run_reliability_check(bot)
+    print(f"Passed: {summary['passed']}/{summary['total_queries']}")
+    print(f"Hit rate: {summary['hit_rate']:.2f}")
+    print()
+    for item in summary["results"]:
+        print(f"Query: {item['query']}")
+        print(f"  Expected: {item['expected']}")
+        print(f"  Retrieved: {item['retrieved']}")
+        print(f"  Hit: {item['hit']}")
+        print()
